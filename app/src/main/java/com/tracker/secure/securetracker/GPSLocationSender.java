@@ -22,7 +22,7 @@ import java.util.Queue;
  */
 public class GPSLocationSender implements NetworkSecurityChangeListener, LocationListener, Runnable, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
-    public static final int PERIOD = 2000;
+    public static final int PERIOD = 5000;
 
     private int securityLevel = 0;
 
@@ -59,18 +59,13 @@ public class GPSLocationSender implements NetworkSecurityChangeListener, Locatio
         LocationPointFactory factory = new LocationPointFactory(apiClient);
         while (true)
         {
-            LocationPoint locationPoint = factory.createLocationPoint();
+            store(factory.createLocationPoint());
             if (securityLevel >= 1)
             {
-                for (LocationPoint lp : locations)
+                for (int i=0;i<locations.size(); i++)
                 {
-                    if (send(lp)) locations.remove(lp);
+                    send(locations.poll());
                 }
-                if (!send(locationPoint)) store(locationPoint);
-            }
-            else
-            {
-                store(locationPoint);
             }
 
             try
